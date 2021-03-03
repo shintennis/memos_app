@@ -66,6 +66,7 @@ if (isset($_REQUEST['res'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" 
     integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
@@ -90,7 +91,7 @@ if (isset($_REQUEST['res'])) {
                 </div>
                 <div class="form-group">
                     <h4><?php print(htmlspecialchars($member['name'], ENT_QUOTES)); ?>さん</h4>
-                    <textarea name="message" cols="51" rows="2"><?php print(htmlspecialchars($message, ENT_QUOTES)); ?></textarea>
+                    <textarea id="textarea" name="message"><?php print(htmlspecialchars($message, ENT_QUOTES)); ?></textarea>
                     <input type="hidden" name="reply_post_id" value="<?php print(htmlspecialchars($_REQUEST['res'], ENT_QUOTES)); ?>">
                 </div>
                 

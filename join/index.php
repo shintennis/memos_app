@@ -28,7 +28,7 @@ if (!empty($_POST)) {
 
     //アカウントの重複チェック
     if(empty($error)) {
-        $member = $db->prepare('SELECT COUNT(*) AS cnt FROM memebers WHERE email=? ');
+        $member = $db->prepare('SELECT COUNT(*) AS cnt FROM members WHERE email=? ');
         $member->execute(array($_POST['email']));
         $record = $member->fetch();
 
@@ -40,19 +40,29 @@ if (!empty($_POST)) {
     //写真ファイルのチェック
     if(empty($error)) {
         $image = date('YmdHis') . $_FILES['image']['name'];
-        move_uploaded_file($_FILES['image']['tmp_name'], '../member_picture/' . $image);
+        $path = '/var/www/html/memos_app/member_img/';
+        if(!file_exists($path)) {
+            mkdir($path, 0777);
+        }
+        move_uploaded_file($_FILES['image']['tmp_name'], $path . $image);
         $_SESSION['join'] = $_POST;
         $_SESSION['join']['image'] = $image;
         header('Location: check.php');
         exit();     
+    } else {
+        echo ("dekitenaiyo");
     }
 }
 
 if ($_REQUEST['action'] == 'rewrite' && isset($_SESSION)) {
     $_POST = $_SESSION['join'];
 }
-    ?>
+
+?>
+
+
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
