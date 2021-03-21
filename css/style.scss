@@ -18,6 +18,7 @@ main {
         .card-header-wrapper {
             margin-bottom: 20px;
         }
+
     }
 
 }
@@ -93,15 +94,18 @@ img {
     }
 }
 
-hr {
-    color: red;
-}
+// hr {
+//     color: red;
+// }
 
 #textarea {
     width:100%;
     height:30%;
 }
 
+.smail-error {
+    color:rgb(255, 89, 89);
+}
 
     @media screen and (min-width: 767px) { /*ウィンドウ幅が767px以上の場合に適用*/
         main {
@@ -128,15 +132,10 @@ hr {
         }
     }
 
-    @media screen and (max-width: 767px) { /*ウィンドウ幅が最大767pxまでの場合に適用*/
-    main {
-    background-color: #FF0000; /*赤色*/
-    }
-    }
+
 
     @media screen and (max-width: 479px) { /*ウィンドウ幅が最大479pxまでの場合に適用*/
         main {
-            background-color: #4CAF50;
             .wrap {
                 margin-top: 10px;
                 text-align: center;

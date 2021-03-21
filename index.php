@@ -102,7 +102,7 @@ if (isset($_REQUEST['res'])) {
         <?php foreach ($posts as $post): ?>
             <div class="msg">
                 <div class="msg-body">
-                    <img src="member_picture/<?php print(htmlspecialchars($post['picture'], ENT_QUOTES)); ?>" style="float: left" alt="<?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?>">
+                    <img src="member_img/<?php print(htmlspecialchars($post['picture'], ENT_QUOTES)); ?>" style="float: left" alt="<?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?>">
                     <p class="user_name" style="margin: 0 auto;"><?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?> 
                         <span>
                             <small class="text-muted" style="font-size: 12px;">

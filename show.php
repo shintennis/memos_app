@@ -43,7 +43,7 @@ $posts->execute(array($_REQUEST['id']));
                     <div class="card-body">
                         <div class="view-wrapper">
                             <div class="view-header">
-                                <img class="view-img" src="member_picture/<?php print(htmlspecialchars($post['picture'], ENT_QUOTES)); ?>"
+                                <img class="view-img" src="member_img/<?php print(htmlspecialchars($post['picture'], ENT_QUOTES)); ?>"
                                 alt="<?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?>">
                                 <span><?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?></span>
                             </div>

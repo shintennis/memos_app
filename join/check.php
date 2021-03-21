@@ -50,25 +50,25 @@ if (!empty($_POST)) {
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="exampleInputEmail1">・ニックネーム<span class="required">必須</span></label>
+                    <label for="username">・ニックネーム<span class="required">必須</span></label>
                     <p>
                         <?php print(htmlspecialchars($_SESSION['join']['name'], ENT_QUOTES)); ?>
                     </p>
                 </div>
                 <div class="form-group">
-                    <label for="exampleInputEmail1">・メールアドレス<span class="required">必須</span></label>
+                    <label for="email">・メールアドレス<span class="required">必須</span></label>
                     <p>
                     <?php print(htmlspecialchars($_SESSION['join']['email'], ENT_QUOTES)); ?>
                     </p>
                 </div>
                 <div class="form-group">
-                    <label for="exampleInputPassword1">・パスワード<span class="required">必須</span></label>
+                    <label for="password">・パスワード<span class="required">必須</span></label>
                     <p>【表示されません】</p>
                 </div>
                 <div class="form-group">
-                    <label for="exampleInputPassword1">・選択した写真など</label>
+                    <label for="picture">・選択した写真など</label>
                 <?php if ($_SESSION['join']['image'] != ''): ?>
-                    <img src="../member_picture/<?php print(htmlspecialchars($_SESSION['join']['image'], ENT_QUOTES)) ?>">
+                    <img src="../member_img/<?php print(htmlspecialchars($_SESSION['join']['image'], ENT_QUOTES)) ?>">
                 <?php endif; ?>
                 </div>
                 <a class="btn btn-outline-success" href="index.php?action=rewrite">訂正する</a>  |  <button type="submit" class="btn btn-outline-primary">登録する</button>

@@ -51,6 +51,7 @@ if (!empty($_POST)) {
         <a class="navbar-brand" href="#">
             ログイン
         </a>
+        
     </nav>
     <main>
         <div class="card">
@@ -58,16 +59,17 @@ if (!empty($_POST)) {
                 <div class="card-header-wrapper">
                     <div class="card-header" style="font-size: 20px;">
                         ログイン
+                        <a href="join/index.php" class="kaiinn_tag" alt="#" style="text-decoration: none; float: right;">会員登録</a>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="exampleInputEmail1">・メールアドレス<span class="required">必須</span></label>
                     <input type="text" name="email" class="form-control" value="<?php print(htmlspecialchars($email, ENT_QUOTES)); ?>">
                 <?php if ($error['login'] === 'blank'): ?>
-                    <small class="form-text text-muted">＊メールアドレスとパスワードを入力してください</small>
+                    <small class="form-text text-muted"><p class="smail-error">＊メールアドレスとパスワードを入力してください</p></small>
                 <?php endif; ?>
                 <?php if ($error['login'] === 'failed'): ?>
-                    <small class="form-text text-muted">＊ログインに失敗しました。正しく入力してください</small>
+                    <small class="form-text text-muted"><p class="smail-error">＊ログインに失敗しました。正しく入力してください</p></small>
                 <?php endif; ?>
                 </div>
                 <div class="form-group">
