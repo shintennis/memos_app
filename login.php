@@ -49,7 +49,7 @@ if (!empty($_POST)) {
 <body>
     <nav class="navbar navbar-dark">
         <a class="navbar-brand" href="#">
-            ログイン
+            MEMO
         </a>
         
     </nav>

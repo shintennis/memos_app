@@ -8,7 +8,7 @@ if(!isset($_SESSION['join'])) {
 }
 
 if (!empty($_POST)) {
-    $statement = $db->prepare('INSERT INTO members SET name=?, email=?, password=?, 
+    $statement = $db->prepare('INSERT INTO members SET name=?, email=?, password=?,
     picture=?, created=NOW() ');
     $statement->execute(array(
         $_SESSION['join']['name'],
@@ -37,7 +37,7 @@ if (!empty($_POST)) {
 <body>
     <nav class="navbar navbar-dark">
         <a class="navbar-brand" href="#">
-            会員登録
+            MEMO
         </a>
     </nav>
     <main>

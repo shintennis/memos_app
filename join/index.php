@@ -10,9 +10,9 @@ if (!empty($_POST)) {
     $email = $_POST['email'];
     $pass = $_POST['password'];
     $pass_re = $_POST['password_re'];
+    $image = $_POST['image'];
     $fileName = $_FILES['image']['name'];
 
-    $err_msg = array();
 
     if($username === '') {
         $error['name'] = 'blank';
@@ -60,14 +60,17 @@ if (!empty($_POST)) {
 
 
     //写真ファイルのチェック
+
     if(empty($error)) {
-        $image = date('YmdHis') . $_FILES['image']['name'];
-        move_uploaded_file($_FILES['image']['tmp_name'], '../member_img/' . $image);
-        $_SESSION['join'] = $_POST;
-        $_SESSION['join']['image'] = $image;
-        header('Location: check.php');
-        exit();     
+            // $image = date('YmdHis') . $_FILES['image']['name'];
+            $path = '../member_img/'. date('YmdHis') . $_FILES['image']['name'];
+            move_uploaded_file($_FILES['image']['tmp_name'], $path);
+            $_SESSION['join'] = $_POST;
+            $_SESSION['join']['image'] = $image;
+            header('Location: check.php');
+            exit();     
     }
+
 }
 
 if ($_REQUEST['action'] == 'rewrite' && isset($_SESSION)) {
@@ -91,7 +94,7 @@ if ($_REQUEST['action'] == 'rewrite' && isset($_SESSION)) {
 <body>
     <nav class="navbar navbar-dark">
         <a class="navbar-brand" alt="#">
-            会員登録
+            MEMO
         </a>
     </nav>
     <main>

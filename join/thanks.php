@@ -11,7 +11,7 @@
 <body>
     <nav class="navbar navbar-dark">
         <a class="navbar-brand" href="#">
-            会員登録
+            MEMO
         </a>
     </nav>
 <main>
