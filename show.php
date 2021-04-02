@@ -43,8 +43,11 @@ $posts->execute(array($_REQUEST['id']));
                     <div class="card-body">
                         <div class="view-wrapper">
                             <div class="view-header">
-                                <img class="view-img" src="member_img/<?php print(htmlspecialchars($post['picture'], ENT_QUOTES)); ?>"
-                                alt="<?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?>">
+                            <?php if(!empty($post['picture'])): ?>
+                                <img class="view-img" src="member_img/<?php print(htmlspecialchars($post['picture'], ENT_QUOTES)); ?>" alt="<?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?>">
+                            <?php else: ?>
+                                <img class="view-img" src="userIcon/user-icon.png"  alt="<?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?>">
+                            <?php endif; ?>
                                 <span><?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?></span>
                             </div>
                             <hr>

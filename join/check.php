@@ -67,9 +67,11 @@ if (!empty($_POST)) {
                 </div>
                 <div class="form-group">
                     <label for="picture">・選択した写真など</label>
-                <?php if ($_SESSION['join']['image'] != ''): ?>
+                    <?php if ($_SESSION['join']['image'] != ''): ?>
                     <img src="../member_img/<?php print(htmlspecialchars($_SESSION['join']['image'], ENT_QUOTES)) ?>">
-                <?php endif; ?>
+                    <?php else: ?>
+                        <img src="../userIcon/user-icon.png">
+                    <?php endif; ?>
                 </div>
                 <a class="btn btn-outline-success" href="index.php?action=rewrite">訂正する</a>  |  <button type="submit" class="btn btn-outline-primary">登録する</button>
             </form>

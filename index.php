@@ -2,6 +2,7 @@
 session_start();
 require('db_connect.php');
 
+//タイムアウトチェック
 if (isset($_SESSION['id']) && $_SESSION['time'] + 3600 > time()) {
     $_SESSION['time'] = time();
 
@@ -57,6 +58,8 @@ if (isset($_REQUEST['res'])) {
     $table = $resuponse->fetch();
     $message = '@' . $table['name'] . $table['message'] . " > ";
 }
+
+$ext = substr($post['picture'], strrpos($post['picture'], '.') + 1);
 ?>
 
 <!DOCTYPE html>
@@ -102,7 +105,11 @@ if (isset($_REQUEST['res'])) {
         <?php foreach ($posts as $post): ?>
             <div class="msg">
                 <div class="msg-body">
+                <?php if(!empty($post['picture'])): ?>
                     <img src="member_img/<?php print(htmlspecialchars($post['picture'], ENT_QUOTES)); ?>" style="float: left" alt="<?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?>">
+                <?php else: ?>
+                    <img src="userIcon/user-icon.png" style="float: left" alt="<?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?>">
+                <?php endif; ?>
                     <p class="user_name" style="margin: 0 auto;"><?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?> 
                         <span>
                             <small class="text-muted" style="font-size: 12px;">

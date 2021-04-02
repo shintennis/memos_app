@@ -62,16 +62,18 @@ if (!empty($_POST)) {
     //写真ファイルのチェック
 
     if(empty($error)) {
-            // $image = date('YmdHis') . $_FILES['image']['name'];
-            $path = '../member_img/'. date('YmdHis') . $_FILES['image']['name'];
-            move_uploaded_file($_FILES['image']['tmp_name'], $path);
-            $_SESSION['join'] = $_POST;
-            $_SESSION['join']['image'] = $image;
-            header('Location: check.php');
-            exit();     
+        $image = sha1_file($_FILES['image']['name']);
+        $path = '../member_img/'. date('YmdHis') . $_FILES['image']['name'];
+        move_uploaded_file($_FILES['image']['tmp_name'], $path);
+        $_SESSION['join'] = $_POST;
+        $_SESSION['join']['image'] = $image;
+        header('Location: check.php');
+        exit();      
     }
 
 }
+    
+
 
 if ($_REQUEST['action'] == 'rewrite' && isset($_SESSION)) {
     $_POST = $_SESSION['join'];
