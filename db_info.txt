@@ -1,0 +1,4 @@
+$db_name = 'memos_db';
+$db_host = 'memos-web.chte87d6gkzh.ap-northeast-1.rds.amazonaws.com';
+$db_user = 'memos_db';
+$db_pass = 'Sinteni1126';
