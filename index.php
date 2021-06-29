@@ -31,18 +31,10 @@ if (!empty($_POST)) {
     }
 }
 
-//---------------------------いいね---------------------------//
+//---------------------------いいね---------------------------//(実装中)
 
 //ユーザーIDと投稿IDを元にいいね値の重複チェックを行っています
 function check_favolite_duplicate($user_id,$post_id){
-    // $dsn='mysql:dbname=memos_db;host=memos-web.chte87d6gkzh.ap-northeast-1.rds.amazonaws.com;charset=utf8;';
-    // $user='memos_db';
-    // $password='Sinteni1126';
-    // $dbh=new PDO($dsn,$user,$password);
-    // $sql = "SELECT *
-    //         FROM good
-    //         WHERE :user_id = user_id AND :post_id = post_id";
-    // $stmt = $dbh->prepare($sql);
     $dsn = $db->preare('SELECT * FROM good WHERE :post_id = post_id AND :user_id = user_id');
     $dsn->execute(array(':user_id' => $user_id ,
                          ':post_id' => $post_id));

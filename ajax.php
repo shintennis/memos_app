@@ -8,13 +8,6 @@ require('db_connect.php');
 
 //DBに登録されているかチェック
 function check_favolite_duplicate($user_id,$post_id){
-    // $dsn='mysql:dbname=memos_db;host=memos-web.chte87d6gkzh.ap-northeast-1.rds.amazonaws.com;charset=utf8;';
-    // $user='memos_db';
-    // $password='Sinteni1126';
-    // $dbh=new PDO($dsn,$user,$password);
-    // $sql = "SELECT *
-    //         FROM good
-    //         WHERE :user_id = user_id AND :post_id = post_id";
     $dsn = $db->preare('SELECT * FROM good WHERE :user_id = user_id AND :post_id = post_id');
     $dsn->execute(array(':user_id' => $user_id ,
                          ':post_id' => $post_id));
