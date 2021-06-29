@@ -2,7 +2,6 @@
 session_start();
 require('db_connect.php');
 
-//タイムアウトチェック
 if (isset($_SESSION['id']) && $_SESSION['time'] + 3600 > time()) {
     $_SESSION['time'] = time();
 
@@ -13,6 +12,7 @@ if (isset($_SESSION['id']) && $_SESSION['time'] + 3600 > time()) {
     header('Location: login.php');
     exit();
 }
+
 
 if (!empty($_POST)) {
     if ($_POST['message'] !== '') {
@@ -31,6 +31,29 @@ if (!empty($_POST)) {
     }
 }
 
+//---------------------------いいね---------------------------//
+
+//ユーザーIDと投稿IDを元にいいね値の重複チェックを行っています
+function check_favolite_duplicate($user_id,$post_id){
+    // $dsn='mysql:dbname=memos_db;host=memos-web.chte87d6gkzh.ap-northeast-1.rds.amazonaws.com;charset=utf8;';
+    // $user='memos_db';
+    // $password='Sinteni1126';
+    // $dbh=new PDO($dsn,$user,$password);
+    // $sql = "SELECT *
+    //         FROM good
+    //         WHERE :user_id = user_id AND :post_id = post_id";
+    // $stmt = $dbh->prepare($sql);
+    $dsn = $db->preare('SELECT * FROM good WHERE :post_id = post_id AND :user_id = user_id');
+    $dsn->execute(array(':user_id' => $user_id ,
+                         ':post_id' => $post_id));
+    $favorite = $dsn->fetch();
+    return $favorite;
+}
+
+//------------------------------------------------------//
+
+
+//ページ移動
 $page = $_REQUEST['page'];
 if ($page == '') {
     $page = 1;
@@ -43,14 +66,16 @@ $maxPage = ceil($cnt['cnt'] / 5);
 $page = min($page, $maxPage);
 $start = ($page - 1) * 5;
 
+//ページに表示する投稿数制限
 $posts = $db->prepare('SELECT m.name, m.picture, p.* FROM members m, posts p 
 WHERE m.id=p.member_id ORDER BY p.created DESC LIMIT ?,5');
 
 $posts->bindParam(1, $start, PDO::PARAM_INT);
 $posts->execute();
 
+
+//返信の処理
 if (isset($_REQUEST['res'])) {
-    //返信の処理
     $resuponse = $db->prepare('SELECT m.name, m.picture, p.*
     FROM members m, posts p WHERE m.id=p.member_id AND p.id=? ');
     $resuponse->execute(array($_REQUEST['res']));
@@ -59,30 +84,11 @@ if (isset($_REQUEST['res'])) {
     $message = '@' . $table['name'] . $table['message'] . " > ";
 }
 
-$ext = substr($post['picture'], strrpos($post['picture'], '.') + 1);
+
 ?>
 
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" 
-    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-
-
-    <title>掲示板</title>
-</head>
-<body>
-    <nav class="navbar navbar-dark">
-        <a class="navbar-brand" href="#">
-            掲示板
-        </a>
-    </nav>
+<?php include('head.php'); ?>
+<?php include('header.php'); ?>
     <main>
         <div class="card">
             <form class="card-body" action="" method="POST" enctype="multipart/form-data">
@@ -105,26 +111,40 @@ $ext = substr($post['picture'], strrpos($post['picture'], '.') + 1);
         <?php foreach ($posts as $post): ?>
             <div class="msg">
                 <div class="msg-body">
-                <?php if(!empty($post['picture'])): ?>
+                <?php if($_SESSION['join']['image'] !== 'user-icon.png'): ?>
                     <img src="member_img/<?php print(htmlspecialchars($post['picture'], ENT_QUOTES)); ?>" style="float: left" alt="<?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?>">
                 <?php else: ?>
                     <img src="userIcon/user-icon.png" style="float: left" alt="<?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?>">
                 <?php endif; ?>
-                    <p class="user_name" style="margin: 0 auto;"><?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?> 
+                    <p class="user_name"><?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?> 
                         <span>
-                            <small class="text-muted" style="font-size: 12px;">
+                            <small class="text-muted">
                                 <a href="show.php?id=<?php print(htmlspecialchars($post['id'], ENT_QUOTES)); ?>" style="text-decoration: none;"><?php print(htmlspecialchars($post['created'], ENT_QUOTES)); ?></a>
                                 <a href="index.php?res=<?php print(htmlspecialchars($post['id'], ENT_QUOTES)); ?>" style="color: gray;">
-                                <i class='far fa-comment-alt w3-large' style="margin-left: 10px;"></i></a>
+                                <i class="far fa-comment fa-lg px-16"></i></a>
                             </small>
                             <?php if ($_SESSION['id'] == $post['member_id']): ?>
                                 <a href="delete.php?id=<?php print(htmlspecialchars($post['id'], ENT_QUOTES)); ?>" style="color: #F33;">
-                                <i class="fa fa-trash w3-large" style="float: right;"></i></a>
+                                <i class="fas fa-trash fa-md px-16" style="float: right;"></i></a>
+                            <?else: ?>
                             <?php endif; ?>
                         </span>
                     </p>
                     <p><?php print(htmlspecialchars($post['message'], ENT_QUOTES)); ?></p>
                 </div>
+                <!-- いいね機能 -->
+                <form class="favorite_count" action="#" method="post" style="float: right;">
+                    <input type="hidden" name="post_id">
+                    <div class="btn-good" data-user_id="<?php echo $_SESSION['id'] ?>" data-post_id="<?php echo $post['id'] ?>">
+                        <i class="fa-heart fa-lg px-16 iro
+                        <?php
+                        if(!check_favolite_duplicate($_SESSION['id'],$post['id'])){ //いいね押したらハートが塗りつぶされる
+                            echo ' far';
+                        }else{ //いいねを取り消したらハートのスタイルが取り消される
+                            echo ' fas';
+                        }; ?>" style="color: red;"></i>
+                    </div>
+                </form>
             </div>
             <?php endforeach; ?>
 
@@ -138,5 +158,8 @@ $ext = substr($post['picture'], strrpos($post['picture'], '.') + 1);
             </ul>
             </div>
         </main>
+        <script type="text/javascript" src="js/action.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/cesiumjs/1.78/Build/Cesium/Cesium.js"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 </body>
 </html>

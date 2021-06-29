@@ -20,6 +20,10 @@ main .card .card-header-wrapper {
   margin-bottom: 20px;
 }
 
+main .iro {
+  color: #ff00b7;
+}
+
 nav {
   background-color: #9849ff;
 }

@@ -1,8 +1,7 @@
 <?php
-require('../../my_db_info.dat');
 
 try {
-        $db = new PDO('mysql:dbname=$db_name;host=$db_host;charset=utf8;','$db_user', '$db_pass');
+        $db = new PDO('mysql:dbname=memos_db;host=memos-web.chte87d6gkzh.ap-northeast-1.rds.amazonaws.com;charset=utf8;','memos_db', 'Sinteni1126');
     } catch(PDOException $e){
         echo 'DB接続エラー : ' . $e->getMessage();
     }
