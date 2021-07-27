@@ -33,14 +33,6 @@ if (!empty($_POST)) {
 
 //---------------------------いいね---------------------------//(実装中)
 
-//ユーザーIDと投稿IDを元にいいね値の重複チェックを行っています
-function check_favolite_duplicate($user_id,$post_id){
-    $dsn = $db->preare('SELECT * FROM good WHERE :post_id = post_id AND :user_id = user_id');
-    $dsn->execute(array(':user_id' => $user_id ,
-                         ':post_id' => $post_id));
-    $favorite = $dsn->fetch();
-    return $favorite;
-}
 
 //------------------------------------------------------//
 
