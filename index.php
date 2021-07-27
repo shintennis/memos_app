@@ -1,10 +1,15 @@
 <?php
+
+//セッションスタート
 session_start();
+//DB接続
 require('db_connect.php');
 
+//ろぐいん時間の確認
 if (isset($_SESSION['id']) && $_SESSION['time'] + 3600 > time()) {
     $_SESSION['time'] = time();
 
+    //DBからユーザーIDの取得
     $members = $db->prepare('SELECT * FROM members WHERE id=? ');
     $members->execute(array($_SESSION['id']));
     $member = $members->fetch();
@@ -13,7 +18,7 @@ if (isset($_SESSION['id']) && $_SESSION['time'] + 3600 > time()) {
     exit();
 }
 
-
+//返信機能
 if (!empty($_POST)) {
     if ($_POST['message'] !== '') {
         if (!isset($_REQUEST['res'])) {
@@ -31,9 +36,63 @@ if (!empty($_POST)) {
     }
 }
 
-//---------------------------いいね---------------------------//(実装中)
+//---------------------------いいね---------------------------//
 
 
+    //ユーザーIDと投稿IDを元にいいね値の重複チェック
+    function dbConnect(){
+        // DBへの接続準備
+        $dsn = 'mysql:dbname=memos_db;host=localhost;charset=utf8';
+        $user = 'root';
+        $password = 'root';
+        $options = array(
+            // SQL実行失敗時にはエラーコードのみ設定
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
+            // デフォルトフェッチモードを連想配列形式に設定
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            // バッファードクエリを使う(一度に結果セットをすべて取得し、サーバー負荷を軽減)
+            // SELECTで得た結果に対してもrowCountメソッドを使えるようにする
+            PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+        );
+        // PDOオブジェクト生成（DBへ接続）
+        $dbh = new PDO($dsn, $user, $password, $options);
+        return $dbh;
+    }
+
+    //クエリの実行
+    function queryPost($dbh, $sql, $data){
+        // クエリ作成
+        $stmt = $dbh->prepare($sql);
+        // SQL文を実行
+        if(!$stmt->execute($data)){
+            print_r("クエリ失敗しました");
+            return 0;
+        }
+        print_r('クエリ成功');
+        return $stmt;
+    }
+    
+        //DBに登録されているか確認
+    function isGood($user_id, $post_id){
+        try {
+            $dbh = dbConnect();
+            $sql = 'SELECT * FROM good WHERE post_id = :p_id AND user_id = :u_id';
+            $data = array(':u_id' => $user_id, ':p_id' => $post_id);
+            // クエリ実行
+            $stmt = queryPost($dbh, $sql, $data);
+    
+            if($stmt->rowCount()){
+                print_r('お気に入りです');
+                return true;
+            }else{
+                print_r('特に気に入ってません');
+                return false;
+            }
+    
+        } catch (Exception $e) {
+            error_log('エラー発生:' . $e->getMessage());
+        }
+    }
 //------------------------------------------------------//
 
 
@@ -44,6 +103,7 @@ if ($page == '') {
 }
 $page = max($page, 1);
 
+// $dbh = dbConnect();
 $counts = $db->query('SELECT COUNT(*) AS cnt FROM posts ');
 $cnt = $counts->fetch();
 $maxPage = ceil($cnt['cnt'] / 5);
@@ -60,6 +120,7 @@ $posts->execute();
 
 //返信の処理
 if (isset($_REQUEST['res'])) {
+    // $dbh = dbConnect();
     $resuponse = $db->prepare('SELECT m.name, m.picture, p.*
     FROM members m, posts p WHERE m.id=p.member_id AND p.id=? ');
     $resuponse->execute(array($_REQUEST['res']));
@@ -95,7 +156,7 @@ if (isset($_REQUEST['res'])) {
         <?php foreach ($posts as $post): ?>
             <div class="msg">
                 <div class="msg-body">
-                <?php if($_SESSION['join']['image'] !== 'user-icon.png'): ?>
+                <?php if($post['picture'] !== 'user-icon.png'): ?>
                     <img src="member_img/<?php print(htmlspecialchars($post['picture'], ENT_QUOTES)); ?>" style="float: left" alt="<?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?>">
                 <?php else: ?>
                     <img src="userIcon/user-icon.png" style="float: left" alt="<?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?>">
@@ -120,13 +181,15 @@ if (isset($_REQUEST['res'])) {
                 <form class="favorite_count" action="#" method="post" style="float: right;">
                     <input type="hidden" name="post_id">
                     <div class="btn-good" data-user_id="<?php echo $_SESSION['id'] ?>" data-post_id="<?php echo $post['id'] ?>">
-                        <i class="fa-heart fa-lg px-16 iro
+                    <i class="fa-heart fa-lg px-16 iro
                         <?php
-                        if(!check_favolite_duplicate($_SESSION['id'],$post['id'])){ //いいね押したらハートが塗りつぶされる
+                        if(!isGood($_SESSION['id'],$post['id'])){ 
+                            //いいね押したらハートが塗りつぶされる
                             echo ' far';
-                        }else{ //いいねを取り消したらハートのスタイルが取り消される
+                        }else{ 
+                            //いいねを取り消したらハートのスタイルが取り消される
                             echo ' fas';
-                        }; ?>" style="color: red;"></i>
+                        }; ?>"></i>
                     </div>
                 </form>
             </div>

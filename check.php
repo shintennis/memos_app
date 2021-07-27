@@ -1,6 +1,8 @@
 <?php
+header('Set-Cookie: cross-site-cookie=name; SameSite=None; Secure');
 session_start();
 require('db_connect.php');
+// require('function.php');
 
 //セッション情報を確認
 if(!isset($_SESSION['join'])) {
@@ -10,6 +12,7 @@ if(!isset($_SESSION['join'])) {
 
 //チェックした情報をDBにinsert
 if (!empty($_POST)) {
+    // $dbh = dbConnect();
     $statement = $db->prepare('INSERT INTO members SET name=?, email=?, password=?, password_re=?,
     picture=?, created=NOW() ');
     $statement->execute(array(
@@ -55,7 +58,7 @@ if (!empty($_POST)) {
                 </div>
                 <div class="form-group">
                     <label for="picture">・選択した写真など</label>
-                    <?php if ($_SESSION['join']['image'] !== 'usericon.png'): ?>
+                    <?php if ($_SESSION['join']['image'] !== 'user-icon.png'): ?>
                         <img src="member_img/<?php print(htmlspecialchars($_SESSION['join']['image'], ENT_QUOTES));  ?>">
                     <?php else: ?>
                         <img src="userIcon/user-icon.png">

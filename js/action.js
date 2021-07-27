@@ -27,12 +27,13 @@ $(document).on('click','.btn-good',function(e){
         data: { 'c_id': $c_id,
                 'p_id': $p_id}
         }).done(function(data){
-    // location.reload();
+          console.log(data);
           $this.children('i').toggleClass('far'); //空洞ハート
-            // いいね押した時のスタイル
+          // いいね押した時のスタイル
           $this.children('i').toggleClass('fas');
+          // location.reload();
   }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
-    location.reload();
+    // location.reload();
     console.log("XMLHttpRequest : " + XMLHttpRequest.status);
     console.log("textStatus     : " + textStatus);
     console.log("errorThrown    : " + errorThrown.message);

@@ -1,6 +1,12 @@
 <?php
+// $cookieParams = session_get_cookie_params();
+// $cookieParams[samesite] = "None";
+// session_set_cookie_params($cookieParams);
+// header('Set-Cookie: cross-site-cookie=name; SameSite=None; Secure');
+
 session_start();
 require('db_connect.php');
+// require('function.php');
 
 if ($_COOKIE['email'] !== '') {
     $email = $_COOKIE['email'];
@@ -10,6 +16,7 @@ if (!empty($_POST)) {
     $email = $_POST['email'];
     
     if ($_POST['email'] !== '' && $_POST['password'] !== '') {
+        // $dbh = dbConnect();
         $login = $db->prepare('SELECT * FROM members WHERE email= :email AND password= :password');
         $login->execute(array(
             ':email' => $_POST['email'],
