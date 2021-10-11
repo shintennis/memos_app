@@ -1,10 +1,15 @@
 <?php
+
+//セッションスタート
 session_start();
+//DB接続
 require('db_connect.php');
 
+//ろぐいん時間の確認
 if (isset($_SESSION['id']) && $_SESSION['time'] + 3600 > time()) {
     $_SESSION['time'] = time();
 
+    //DBからユーザーIDの取得
     $members = $db->prepare('SELECT * FROM members WHERE id=? ');
     $members->execute(array($_SESSION['id']));
     $member = $members->fetch();
@@ -13,6 +18,7 @@ if (isset($_SESSION['id']) && $_SESSION['time'] + 3600 > time()) {
     exit();
 }
 
+//返信機能
 if (!empty($_POST)) {
     if ($_POST['message'] !== '') {
         if (!isset($_REQUEST['res'])) {
@@ -30,26 +36,91 @@ if (!empty($_POST)) {
     }
 }
 
+//---------------------------いいね---------------------------//
+
+
+    //ユーザーIDと投稿IDを元にいいね値の重複チェック
+    function dbConnect(){
+        // DBへの接続準備
+        $dsn = 'mysql:dbname=memos_db;host=localhost;charset=utf8';
+        $user = 'root';
+        $password = 'root';
+        $options = array(
+            // SQL実行失敗時にはエラーコードのみ設定
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
+            // デフォルトフェッチモードを連想配列形式に設定
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            // バッファードクエリを使う(一度に結果セットをすべて取得し、サーバー負荷を軽減)
+            // SELECTで得た結果に対してもrowCountメソッドを使えるようにする
+            PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+        );
+        // PDOオブジェクト生成（DBへ接続）
+        $dbh = new PDO($dsn, $user, $password, $options);
+        return $dbh;
+    }
+
+    //クエリの実行
+    function queryPost($dbh, $sql, $data){
+        // クエリ作成
+        $stmt = $dbh->prepare($sql);
+        // SQL文を実行
+        if(!$stmt->execute($data)){
+            print_r("クエリ失敗しました");
+            return 0;
+        }
+        print_r('クエリ成功');
+        return $stmt;
+    }
+    
+        //DBに登録されているか確認
+    function isGood($user_id, $post_id){
+        try {
+            $dbh = dbConnect();
+            $sql = 'SELECT * FROM good WHERE post_id = :p_id AND user_id = :u_id';
+            $data = array(':u_id' => $user_id, ':p_id' => $post_id);
+            // クエリ実行
+            $stmt = queryPost($dbh, $sql, $data);
+    
+            if($stmt->rowCount()){
+                print_r('お気に入りです');
+                return true;
+            }else{
+                print_r('特に気に入ってません');
+                return false;
+            }
+    
+        } catch (Exception $e) {
+            error_log('エラー発生:' . $e->getMessage());
+        }
+    }
+//------------------------------------------------------//
+
+
+//ページ移動
 $page = $_REQUEST['page'];
 if ($page == '') {
     $page = 1;
 }
 $page = max($page, 1);
 
+// $dbh = dbConnect();
 $counts = $db->query('SELECT COUNT(*) AS cnt FROM posts ');
 $cnt = $counts->fetch();
 $maxPage = ceil($cnt['cnt'] / 5);
 $page = min($page, $maxPage);
 $start = ($page - 1) * 5;
 
+//ページに表示する投稿数制限
 $posts = $db->prepare('SELECT m.name, m.picture, p.* FROM members m, posts p 
 WHERE m.id=p.member_id ORDER BY p.created DESC LIMIT ?,5');
 
 $posts->bindParam(1, $start, PDO::PARAM_INT);
 $posts->execute();
 
+
+//返信の処理
 if (isset($_REQUEST['res'])) {
-    //返信の処理
+    // $dbh = dbConnect();
     $resuponse = $db->prepare('SELECT m.name, m.picture, p.*
     FROM members m, posts p WHERE m.id=p.member_id AND p.id=? ');
     $resuponse->execute(array($_REQUEST['res']));
@@ -57,28 +128,12 @@ if (isset($_REQUEST['res'])) {
     $table = $resuponse->fetch();
     $message = '@' . $table['name'] . $table['message'] . " > ";
 }
+
+
 ?>
 
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" 
-    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-
-
-    <title>掲示板</title>
-</head>
-<body>
-    <nav class="navbar navbar-dark">
-        <a class="navbar-brand" href="#">
-            掲示板
-        </a>
-    </nav>
+<?php include('head.php'); ?>
+<?php include('header.php'); ?>
     <main>
         <div class="card">
             <form class="card-body" action="" method="POST" enctype="multipart/form-data">
@@ -90,7 +145,7 @@ if (isset($_REQUEST['res'])) {
                 </div>
                 <div class="form-group">
                     <h4><?php print(htmlspecialchars($member['name'], ENT_QUOTES)); ?>さん</h4>
-                    <textarea name="message" cols="51" rows="2"><?php print(htmlspecialchars($message, ENT_QUOTES)); ?></textarea>
+                    <textarea id="textarea" name="message"><?php print(htmlspecialchars($message, ENT_QUOTES)); ?></textarea>
                     <input type="hidden" name="reply_post_id" value="<?php print(htmlspecialchars($_REQUEST['res'], ENT_QUOTES)); ?>">
                 </div>
                 
@@ -101,22 +156,42 @@ if (isset($_REQUEST['res'])) {
         <?php foreach ($posts as $post): ?>
             <div class="msg">
                 <div class="msg-body">
-                    <img src="member_picture/<?php print(htmlspecialchars($post['picture'], ENT_QUOTES)); ?>" style="float: left" alt="<?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?>">
-                    <p class="user_name" style="margin: 0 auto;"><?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?> 
+                <?php if($post['picture'] !== 'user-icon.png'): ?>
+                    <img src="member_img/<?php print(htmlspecialchars($post['picture'], ENT_QUOTES)); ?>" style="float: left" alt="<?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?>">
+                <?php else: ?>
+                    <img src="userIcon/user-icon.png" style="float: left" alt="<?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?>">
+                <?php endif; ?>
+                    <p class="user_name"><?php print(htmlspecialchars($post['name'], ENT_QUOTES)); ?> 
                         <span>
-                            <small class="text-muted" style="font-size: 12px;">
+                            <small class="text-muted">
                                 <a href="show.php?id=<?php print(htmlspecialchars($post['id'], ENT_QUOTES)); ?>" style="text-decoration: none;"><?php print(htmlspecialchars($post['created'], ENT_QUOTES)); ?></a>
                                 <a href="index.php?res=<?php print(htmlspecialchars($post['id'], ENT_QUOTES)); ?>" style="color: gray;">
-                                <i class='far fa-comment-alt w3-large' style="margin-left: 10px;"></i></a>
+                                <i class="far fa-comment fa-lg px-16"></i></a>
                             </small>
                             <?php if ($_SESSION['id'] == $post['member_id']): ?>
                                 <a href="delete.php?id=<?php print(htmlspecialchars($post['id'], ENT_QUOTES)); ?>" style="color: #F33;">
-                                <i class="fa fa-trash w3-large" style="float: right;"></i></a>
+                                <i class="fas fa-trash fa-md px-16" style="float: right;"></i></a>
+                            <?else: ?>
                             <?php endif; ?>
                         </span>
                     </p>
                     <p><?php print(htmlspecialchars($post['message'], ENT_QUOTES)); ?></p>
                 </div>
+                <!-- いいね機能 -->
+                <form class="favorite_count" action="#" method="post" style="float: right;">
+                    <input type="hidden" name="post_id">
+                    <div class="btn-good" data-user_id="<?php echo $_SESSION['id'] ?>" data-post_id="<?php echo $post['id'] ?>">
+                    <i class="fa-heart fa-lg px-16 iro
+                        <?php
+                        if(!isGood($_SESSION['id'],$post['id'])){ 
+                            //いいね押したらハートが塗りつぶされる
+                            echo ' far';
+                        }else{ 
+                            //いいねを取り消したらハートのスタイルが取り消される
+                            echo ' fas';
+                        }; ?>"></i>
+                    </div>
+                </form>
             </div>
             <?php endforeach; ?>
 
@@ -130,5 +205,8 @@ if (isset($_REQUEST['res'])) {
             </ul>
             </div>
         </main>
+        <script type="text/javascript" src="js/action.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/cesiumjs/1.78/Build/Cesium/Cesium.js"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 </body>
 </html>

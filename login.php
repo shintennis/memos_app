@@ -1,6 +1,12 @@
 <?php
+// $cookieParams = session_get_cookie_params();
+// $cookieParams[samesite] = "None";
+// session_set_cookie_params($cookieParams);
+// header('Set-Cookie: cross-site-cookie=name; SameSite=None; Secure');
+
 session_start();
 require('db_connect.php');
+// require('function.php');
 
 if ($_COOKIE['email'] !== '') {
     $email = $_COOKIE['email'];
@@ -10,13 +16,15 @@ if (!empty($_POST)) {
     $email = $_POST['email'];
     
     if ($_POST['email'] !== '' && $_POST['password'] !== '') {
-        $login = $db->prepare('SELECT * FROM members WHERE email=? AND password=? ');
+        // $dbh = dbConnect();
+        $login = $db->prepare('SELECT * FROM members WHERE email= :email AND password= :password');
         $login->execute(array(
-            $_POST['email'],
-            sha1($_POST['password'])
+            ':email' => $_POST['email'],
+            ':password' => sha1($_POST['password'])
         ));
-        $member = $login->fetch();
+        $member = $login->fetch(PDO::FETCH_ASSOC);
 
+        
         if ($member) {
             $_SESSION['id'] = $member['id'];
             $_SESSION['time'] = time();
@@ -36,22 +44,8 @@ if (!empty($_POST)) {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" 
-    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/style.css">
-    <title>ログイン</title>
-</head>
-<body>
-    <nav class="navbar navbar-dark">
-        <a class="navbar-brand" href="#">
-            ログイン
-        </a>
-    </nav>
+<?php include('head.php'); ?>
+<?php include('header.php'); ?>
     <main>
         <div class="card">
             <form class="card-body" action="" method="POST" enctype="multipart/form-data">
@@ -64,15 +58,18 @@ if (!empty($_POST)) {
                     <label for="exampleInputEmail1">・メールアドレス<span class="required">必須</span></label>
                     <input type="text" name="email" class="form-control" value="<?php print(htmlspecialchars($email, ENT_QUOTES)); ?>">
                 <?php if ($error['login'] === 'blank'): ?>
-                    <small class="form-text text-muted">＊メールアドレスとパスワードを入力してください</small>
+                    <small class="form-text text-muted"><p class="smail-error">＊メールアドレスとパスワードを入力してください</p></small>
                 <?php endif; ?>
                 <?php if ($error['login'] === 'failed'): ?>
-                    <small class="form-text text-muted">＊ログインに失敗しました。正しく入力してください</small>
+                    <small class="form-text text-muted"><p class="smail-error">＊ログインに失敗しました。正しく入力してください</p></small>
                 <?php endif; ?>
                 </div>
                 <div class="form-group">
                     <label for="exampleInputPassword1">・パスワード<span class="required">必須</span></label>
                     <input type="password" name="password" class="form-control" value="<?php print(htmlspecialchars($_POST['password'], ENT_QUOTES)); ?>">
+                </div>
+                <div class="form-troup">
+                    <a href="send_mail.php" style="text-decoration: none;">パスワードを忘れた時</a>
                 </div>
                 <div class="form-troup">
                     <input id="save" type="checkbox" name="save" value="on">
